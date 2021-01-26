@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Board.module.css";
+import useInterval from "@use-it/interval";
 import PropTypes from "prop-types";
 import logoImage from "./logo.svg";
 import LollipopImage from "./images/lollipop.svg";
@@ -16,7 +17,7 @@ function Board({
   const canvas = useRef(null);
   const container = useRef(null);
   const [ctx, setCtx] = useState(undefined);
-
+  const [displayText, setDisplayText] = useState(true);
   //generate lollipop cell  index
 
   useEffect(() => {
@@ -150,21 +151,26 @@ function Board({
       }
 
       //Goal Text
+
       const textSize = Math.min(blockWidth, blockHeight);
       ctx.fillStyle = "red";
       ctx.font = '20px "Joystix"';
       ctx.textBaseline = "top";
-      ctx.fillText(
-        "Goal",
-        maze.endCell[1] * blockWidth + xOffset + (blockWidth - textSize) / 2,
-        maze.endCell[0] * blockHeight + (blockHeight - textSize) / 2,
-        textSize
-      );
+      if (displayText) {
+        ctx.fillText(
+          "Goal",
+          maze.endCell[1] * blockWidth + xOffset + (blockWidth - textSize) / 2,
+          maze.endCell[0] * blockHeight + (blockHeight - textSize) / 2,
+          textSize
+        );
+      }
     };
 
     draw();
   }, [ctx, currentCell, maze, lollipopCell, time]);
-
+  useInterval(() => {
+    setDisplayText((prev) => !prev);
+  }, 1000);
   return (
     <div className={styles.root} ref={container}>
       <canvas ref={canvas} />
