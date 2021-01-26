@@ -22,10 +22,11 @@ function reducer(state, action) {
       return {
         ...state,
         mazesEnd: false,
+        round: state.gameOver ? 1 : action.payload.round,
+        gameOver: false,
         maze: action.payload.maze,
         currentCell: action.payload.maze.startCell,
         time: ROUND_TIME,
-        round: action.payload.round,
       };
     }
     case "decrementTime": {
@@ -36,9 +37,11 @@ function reducer(state, action) {
     }
 
     case "gameOver": {
+      console.log(state.round, "gameover");
       return {
         ...state,
         points: 0,
+        gameOver: true,
         round: 0,
         lollipopCell: null,
       };
@@ -157,6 +160,7 @@ function App() {
     maze: undefined,
     currentCell: undefined,
     mazesEnd: false,
+    gameOver: false,
     lollipopCell: null,
     iceCreamCell: null,
   });
