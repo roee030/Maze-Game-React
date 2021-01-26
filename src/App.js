@@ -45,7 +45,7 @@ function reducer(state, action) {
     case "hitIceCream": {
       return {
         ...state,
-        points: (state.points += 10000),
+        points: state.points + 10000,
         time: state.time + 30,
         iceCreamCell: null,
       };
@@ -54,19 +54,21 @@ function reducer(state, action) {
       return {
         ...state,
         points: 0,
+        hiScore: Math.max(state.hiScore, state.points),
         gameOver: true,
         round: 0,
         lollipopCell: null,
-        iceCreramCell: null,
+        iceCreamCell: null,
       };
     }
     case "win": {
+      console.log(state.round, state.time, state.points);
       let reachingGoalPoint = state.round * state.time * 100 + state.points;
-
+      console.log("state.time", state.time);
       return {
         ...state,
+        points: reachingGoalPoint,
 
-        hiScore: Math.max(state.hiScore, reachingGoalPoint),
         time: ROUND_TIME,
         round: state.round + 1,
         lollipopCell: null,
