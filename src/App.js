@@ -19,7 +19,6 @@ function reducer(state, action) {
     case "startGame": {
       return {
         ...state,
-        mazesSound: true,
         mazesEnd: false,
         maze: action.payload.maze,
         currentCell: action.payload.maze.startCell,
@@ -32,13 +31,7 @@ function reducer(state, action) {
         time: state.time - 1,
       };
     }
-    case "endGame": {
-      return {
-        ...state,
-        points: 0,
-        hiScore: Math.max(state.hiScore, state.points),
-      };
-    }
+
     case "gameOver": {
       return {
         ...state,
@@ -46,14 +39,15 @@ function reducer(state, action) {
         round: 1,
       };
     }
-    case "mazesEnd": {
-      let reachingGoalPoint = state.round * state.time * 100;
+    case "win": {
       console.log(state.round);
+      let reachingGoalPoint = state.round * state.time * 100;
+
       return {
         ...state,
         points: 0,
         hiScore: Math.max(state.hiScore, reachingGoalPoint),
-        time: 0,
+        time: 60,
         round: state.round + 1,
       };
     }
@@ -211,24 +205,24 @@ function App() {
   useEffect(() => {
     if (state.time === 0) {
       mazeAudio.load();
-      dispatch({ type: "endGame" });
-    }
-  }, [state.time]);
-  useEffect(() => {
-    if (state.time === 0 && !state.mazesEnd) {
-      mazeAudio.load();
       dispatch({ type: "gameOver" });
     }
   }, [state.time]);
+
   useEffect(() => {
-    dispatch({ type: "mazesEnd" });
-    // if (state.mazesEnd === true) {
-    //   mazeAudio.load();
-    //   levelEndAudio.play();
-    //   levelEndAudio.addEventListener("ended", () => {
-    //     dispatch({ type: "mazesEnd" });
-    //   });
-    // }
+    if (state.mazesEnd === true && state.time) {
+      mazeAudio.load();
+      levelEndAudio.play();
+      levelEndAudio.addEventListener("ended", () => {
+        dispatch({ type: "win" });
+        dispatch({
+          type: "startGame",
+          payload: {
+            maze: new MazeGenerator(ROWS, COLS).generate(),
+          },
+        });
+      });
+    }
   }, [state.mazesEnd]);
 
   return (
