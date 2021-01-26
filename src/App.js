@@ -18,7 +18,6 @@ const levelEndAudio = new Audio(levelEndAudioSrc);
 function reducer(state, action) {
   switch (action.type) {
     case "startGame": {
-      console.log("action.payload.round", action.payload);
       return {
         ...state,
         mazesEnd: false,
@@ -35,28 +34,43 @@ function reducer(state, action) {
         time: state.time - 1,
       };
     }
-
+    case "hitLollipop": {
+      return {
+        ...state,
+        points: state.points + 5000,
+        time: state.time + 15,
+        lollipopCell: null,
+      };
+    }
+    case "hitIceCream": {
+      return {
+        ...state,
+        points: (state.points += 10000),
+        time: state.time + 30,
+        iceCreamCell: null,
+      };
+    }
     case "gameOver": {
-      console.log(state.round, "gameover");
       return {
         ...state,
         points: 0,
         gameOver: true,
         round: 0,
         lollipopCell: null,
+        iceCreramCell: null,
       };
     }
     case "win": {
-      console.log(state.round);
-      let reachingGoalPoint = state.round * state.time * 100;
+      let reachingGoalPoint = state.round * state.time * 100 + state.points;
 
       return {
         ...state,
-        points: 0,
+
         hiScore: Math.max(state.hiScore, reachingGoalPoint),
         time: ROUND_TIME,
         round: state.round + 1,
         lollipopCell: null,
+        iceCreamCell: null,
       };
     }
     case "moveLogo": {
@@ -164,7 +178,12 @@ function App() {
     lollipopCell: null,
     iceCreamCell: null,
   });
-
+  const callBackOnLollipop = () => {
+    dispatch({ type: "hitLollipop" });
+  };
+  const callBackOnIceCream = () => {
+    dispatch({ type: "hitIceCream" });
+  };
   const handleOnEnterKeyPressed = useCallback(() => {
     if (!state.time) {
       mazeAudio.play();
@@ -216,22 +235,47 @@ function App() {
   );
 
   useEffect(() => {
-    if (state.time === 0) {
+    if (
+      state.time === 0 &&
+      !(state.currentCell[0] == ROWS - 1 && state.currentCell[1] == COLS - 1)
+    ) {
       mazeAudio.load();
       dispatch({ type: "gameOver" });
     }
   }, [state.time]);
 
   //generate lollipop cell index after amount of time
+  const generateMatrixNumber = () => {
+    let tempIndexs = [
+      Math.floor(Math.random() * ROWS),
+      Math.floor(Math.random() * COLS),
+    ];
+
+    if (
+      state.currentCell[0] == tempIndexs[0] &&
+      state.currentCell[1] == tempIndexs[1]
+    ) {
+      generateMatrixNumber();
+    }
+    return tempIndexs;
+  };
+  //Lollipop Image
   useEffect(() => {
     if (state.time === 4) {
-      state.lollipopCell = [
-        Math.floor(Math.random() * ROWS),
-        Math.floor(Math.random() * COLS),
-      ];
+      let lolipopIndexs = generateMatrixNumber();
+      state.lollipopCell = lolipopIndexs;
     }
   }, [state.time]);
 
+  //Ice Cream Image
+  useEffect(() => {
+    if (state.time === 3) {
+      let iceCreamIndexs = generateMatrixNumber();
+      state.iceCreamCell = iceCreamIndexs;
+    }
+  }, [state.time]);
+
+  //escape the maze and win the stage
   useEffect(() => {
     if (state.mazesEnd === true && state.time) {
       mazeAudio.load();
@@ -263,8 +307,12 @@ function App() {
         currentCell={state.currentCell}
         time={state.time}
         lollipopCell={state.lollipopCell}
+        iceCreamCell={state.iceCreamCell}
+        callBackOnLollipop={callBackOnLollipop}
+        callBackOnIceCream={callBackOnIceCream}
       />
       <Notification
+        userLost={state.gameOver}
         show={!state.time}
         gameOver={state.time === 0 && !state.mazesEnd}
       />

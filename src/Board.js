@@ -3,7 +3,16 @@ import styles from "./Board.module.css";
 import PropTypes from "prop-types";
 import logoImage from "./logo.svg";
 import LollipopImage from "./images/lollipop.svg";
-function Board({ maze, currentCell, time, lollipopCell }) {
+import IceCreamImage from "./images/ice_cream.svg";
+function Board({
+  maze,
+  currentCell,
+  time,
+  lollipopCell,
+  callBackOnLollipop,
+  iceCreamCell,
+  callBackOnIceCream,
+}) {
   const canvas = useRef(null);
   const container = useRef(null);
   const [ctx, setCtx] = useState(undefined);
@@ -87,14 +96,31 @@ function Board({ maze, currentCell, time, lollipopCell }) {
         );
       };
       image.src = logoImage;
-
+      //the prize disappears - lollipopCell
+      if (lollipopCell) {
+        if (
+          lollipopCell[0] == currentCell[0] &&
+          lollipopCell[1] == currentCell[1]
+        ) {
+          callBackOnLollipop();
+        }
+      }
+      //the prize disappears - iceCream
+      if (iceCreamCell) {
+        if (
+          iceCreamCell[0] == currentCell[0] &&
+          iceCreamCell[1] == currentCell[1]
+        ) {
+          callBackOnIceCream();
+        }
+      }
       //Lollipop
       if (lollipopCell) {
-        const image1 = new Image(logoSize, logoSize);
+        const lollipopImageOnBoard = new Image(logoSize, logoSize);
 
-        image1.onload = () => {
+        lollipopImageOnBoard.onload = () => {
           ctx.drawImage(
-            image1,
+            lollipopImageOnBoard,
             lollipopCell[0] * blockWidth +
               xOffset +
               (blockWidth - logoSize) / 2,
@@ -103,7 +129,24 @@ function Board({ maze, currentCell, time, lollipopCell }) {
             logoSize
           );
         };
-        image1.src = LollipopImage;
+        lollipopImageOnBoard.src = LollipopImage;
+      }
+      //iceCream
+      if (iceCreamCell) {
+        const IceCreamImageOnBoard = new Image(logoSize, logoSize);
+
+        IceCreamImageOnBoard.onload = () => {
+          ctx.drawImage(
+            IceCreamImageOnBoard,
+            iceCreamCell[0] * blockWidth +
+              xOffset +
+              (blockWidth - logoSize) / 2,
+            iceCreamCell[1] * blockHeight + (blockHeight - logoSize) / 2,
+            logoSize,
+            logoSize
+          );
+        };
+        IceCreamImageOnBoard.src = IceCreamImage;
       }
 
       //Goal Text
@@ -120,7 +163,7 @@ function Board({ maze, currentCell, time, lollipopCell }) {
     };
 
     draw();
-  }, [ctx, currentCell, maze, lollipopCell]);
+  }, [ctx, currentCell, maze, lollipopCell, time]);
 
   return (
     <div className={styles.root} ref={container}>
