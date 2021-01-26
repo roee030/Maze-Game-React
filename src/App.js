@@ -314,8 +314,7 @@ function App() {
         callBackOnIceCream={callBackOnIceCream}
       />
       <Notification
-        userLost={state.gameOver}
-        show={!state.time}
+        show={!state.maze || state.gameOver}
         gameOver={state.time === 0 && !state.mazesEnd}
       />
     </div>
