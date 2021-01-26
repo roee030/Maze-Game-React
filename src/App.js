@@ -224,7 +224,7 @@ function App() {
 
   //generate lollipop cell index after amount of time
   useEffect(() => {
-    if (state.time === 3) {
+    if (state.time === 4) {
       state.lollipopCell = [
         Math.floor(Math.random() * ROWS),
         Math.floor(Math.random() * COLS),

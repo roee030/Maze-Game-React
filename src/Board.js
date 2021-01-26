@@ -120,7 +120,7 @@ function Board({ maze, currentCell, time, lollipopCell }) {
     };
 
     draw();
-  }, [ctx, currentCell, maze]);
+  }, [ctx, currentCell, maze, lollipopCell]);
 
   return (
     <div className={styles.root} ref={container}>
