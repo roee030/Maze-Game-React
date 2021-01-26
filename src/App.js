@@ -215,6 +215,7 @@ function App() {
       levelEndAudio.play();
       levelEndAudio.addEventListener("ended", () => {
         dispatch({ type: "win" });
+        mazeAudio.play();
         dispatch({
           type: "startGame",
           payload: {
