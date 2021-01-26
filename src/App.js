@@ -14,15 +14,18 @@ const arrowsKeys = [37, 38, 39, 40];
 const mazeAudio = new Audio(MazeSoundSrc);
 mazeAudio.loop = true;
 const levelEndAudio = new Audio(levelEndAudioSrc);
+
 function reducer(state, action) {
   switch (action.type) {
     case "startGame": {
+      console.log("action.payload.round", action.payload);
       return {
         ...state,
         mazesEnd: false,
         maze: action.payload.maze,
         currentCell: action.payload.maze.startCell,
         time: ROUND_TIME,
+        round: action.payload.round,
       };
     }
     case "decrementTime": {
@@ -36,7 +39,8 @@ function reducer(state, action) {
       return {
         ...state,
         points: 0,
-        round: 1,
+        round: 0,
+        lollipopCell: null,
       };
     }
     case "win": {
@@ -47,8 +51,9 @@ function reducer(state, action) {
         ...state,
         points: 0,
         hiScore: Math.max(state.hiScore, reachingGoalPoint),
-        time: 60,
+        time: ROUND_TIME,
         round: state.round + 1,
+        lollipopCell: null,
       };
     }
     case "moveLogo": {
@@ -56,7 +61,7 @@ function reducer(state, action) {
         return state;
       }
       let nextCell = undefined;
-
+      let endOfStage;
       switch (action.payload.arrowsKey) {
         case 37: {
           //LEFT
@@ -73,7 +78,7 @@ function reducer(state, action) {
               state.currentCell[0] - 1 === ROWS - 1 &&
               state.currentCell[1] === COLS - 1
             ) {
-              state.mazesEnd = true;
+              endOfStage = true;
             }
           }
           break;
@@ -90,7 +95,7 @@ function reducer(state, action) {
               state.currentCell[0] === ROWS - 1 &&
               state.currentCell[1] - 1 === COLS - 1
             ) {
-              state.mazesEnd = true;
+              endOfStage = true;
             }
           }
           break;
@@ -107,7 +112,7 @@ function reducer(state, action) {
               state.currentCell[0] + 1 === ROWS - 1 &&
               state.currentCell[1] === COLS - 1
             ) {
-              state.mazesEnd = true;
+              endOfStage = true;
             }
           }
           break;
@@ -125,7 +130,7 @@ function reducer(state, action) {
               state.currentCell[0] === ROWS - 1 &&
               state.currentCell[1] + 1 === COLS - 1
             ) {
-              state.mazesEnd = true;
+              endOfStage = true;
             }
           }
           break;
@@ -133,6 +138,7 @@ function reducer(state, action) {
       }
       return {
         ...state,
+        mazesEnd: endOfStage ? true : false,
         currentCell: nextCell || state.currentCell,
         points: nextCell ? state.points + 10 : state.points,
       };
@@ -145,12 +151,14 @@ function reducer(state, action) {
 function App() {
   const [state, dispatch] = useReducer(reducer, {
     points: 0,
-    round: 1,
+    round: 0,
     hiScore: 0,
     time: undefined,
     maze: undefined,
     currentCell: undefined,
     mazesEnd: false,
+    lollipopCell: null,
+    iceCreamCell: null,
   });
 
   const handleOnEnterKeyPressed = useCallback(() => {
@@ -160,6 +168,7 @@ function App() {
         type: "startGame",
         payload: {
           maze: new MazeGenerator(ROWS, COLS).generate(),
+          round: state.round + 1,
         },
       });
     }
@@ -209,6 +218,16 @@ function App() {
     }
   }, [state.time]);
 
+  //generate lollipop cell index after amount of time
+  useEffect(() => {
+    if (state.time === 3) {
+      state.lollipopCell = [
+        Math.floor(Math.random() * ROWS),
+        Math.floor(Math.random() * COLS),
+      ];
+    }
+  }, [state.time]);
+
   useEffect(() => {
     if (state.mazesEnd === true && state.time) {
       mazeAudio.load();
@@ -220,6 +239,7 @@ function App() {
           type: "startGame",
           payload: {
             maze: new MazeGenerator(ROWS, COLS).generate(),
+            round: state.round + 1,
           },
         });
       });
@@ -234,7 +254,12 @@ function App() {
         time={state.time}
         round={state.round}
       />
-      <Board maze={state.maze} currentCell={state.currentCell} />
+      <Board
+        maze={state.maze}
+        currentCell={state.currentCell}
+        time={state.time}
+        lollipopCell={state.lollipopCell}
+      />
       <Notification
         show={!state.time}
         gameOver={state.time === 0 && !state.mazesEnd}

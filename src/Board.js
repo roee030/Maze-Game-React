@@ -2,11 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Board.module.css";
 import PropTypes from "prop-types";
 import logoImage from "./logo.svg";
-
-function Board({ maze, currentCell }) {
+import LollipopImage from "./images/lollipop.svg";
+function Board({ maze, currentCell, time, lollipopCell }) {
   const canvas = useRef(null);
   const container = useRef(null);
   const [ctx, setCtx] = useState(undefined);
+
+  //generate lollipop cell  index
 
   useEffect(() => {
     const fitToContainer = () => {
@@ -40,6 +42,7 @@ function Board({ maze, currentCell }) {
 
       const blockWidth = Math.floor(canvas.current.width / maze.cols);
       const blockHeight = Math.floor(canvas.current.height / maze.rows);
+
       const xOffset = Math.floor(
         (canvas.current.width - maze.cols * blockWidth) / 2
       );
@@ -71,8 +74,8 @@ function Board({ maze, currentCell }) {
           }
         }
       }
-
-      const logoSize = 0.75 * Math.min(blockWidth, blockHeight);
+      //StorrSoft Logo
+      let logoSize = 0.75 * Math.min(blockWidth, blockHeight);
       const image = new Image(logoSize, logoSize);
       image.onload = () => {
         ctx.drawImage(
@@ -83,9 +86,27 @@ function Board({ maze, currentCell }) {
           logoSize
         );
       };
-
       image.src = logoImage;
-      //Goal
+
+      //Lollipop
+      if (lollipopCell) {
+        const image1 = new Image(logoSize, logoSize);
+
+        image1.onload = () => {
+          ctx.drawImage(
+            image1,
+            lollipopCell[0] * blockWidth +
+              xOffset +
+              (blockWidth - logoSize) / 2,
+            lollipopCell[1] * blockHeight + (blockHeight - logoSize) / 2,
+            logoSize,
+            logoSize
+          );
+        };
+        image1.src = LollipopImage;
+      }
+
+      //Goal Text
       const textSize = Math.min(blockWidth, blockHeight);
       ctx.fillStyle = "red";
       ctx.font = '20px "Joystix"';
@@ -101,25 +122,6 @@ function Board({ maze, currentCell }) {
     draw();
   }, [ctx, currentCell, maze]);
 
-  //   ---------------------------------------//
-  //   ---------------------------------------//
-  //   ---------------------------------------//
-
-  //   const handleOnEnterKeyPressed = () => {
-  //     // console.log(container);
-  //   };
-  //   useEffect(() => {
-  //     const onKeyDown = (e) => {
-  //       if (e.keyCode === 13) {
-  //         handleOnEnterKeyPressed();
-  //       }
-  //     };
-  //     window.addEventListener("keydown", onKeyDown);
-
-  //     return () => {
-  //       window.removeEventListener("keydown", onKeyDown);
-  //     };
-  //   }, [handleOnEnterKeyPressed]);
   return (
     <div className={styles.root} ref={container}>
       <canvas ref={canvas} />
