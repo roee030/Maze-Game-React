@@ -103,6 +103,7 @@ function Board({
           lollipopCell[0] == currentCell[0] &&
           lollipopCell[1] == currentCell[1]
         ) {
+          console.log("hit");
           callBackOnLollipop();
         }
       }
@@ -167,7 +168,7 @@ function Board({
     };
 
     draw();
-  }, [ctx, currentCell, maze, lollipopCell, time]);
+  }, [ctx, currentCell, maze, lollipopCell, iceCreamCell, time]);
   useInterval(() => {
     setDisplayText((prev) => !prev);
   }, 1000);

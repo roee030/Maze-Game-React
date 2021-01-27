@@ -5,200 +5,34 @@ import Header from "./Header";
 import Notification from "./Notification";
 import MazeGenerator from "./maze/MazeGenerator";
 import Board from "./Board";
-import MazeSoundSrc from "./audio/maze.mp3";
-import levelEndAudioSrc from "./audio/level_end.mp3";
-const ROUND_TIME = 5;
-const ROWS = 3;
-const COLS = 3;
-const arrowsKeys = [37, 38, 39, 40];
-const mazeAudio = new Audio(MazeSoundSrc);
-mazeAudio.loop = true;
-const levelEndAudio = new Audio(levelEndAudioSrc);
-
-function reducer(state, action) {
-  switch (action.type) {
-    case "startGame": {
-      return {
-        ...state,
-        mazesEnd: false,
-        round: state.gameOver ? 1 : action.payload.round,
-        gameOver: false,
-        maze: action.payload.maze,
-        currentCell: action.payload.maze.startCell,
-        time: ROUND_TIME,
-      };
-    }
-    case "decrementTime": {
-      return {
-        ...state,
-        time: state.time - 1,
-      };
-    }
-    case "hitLollipop": {
-      return {
-        ...state,
-        points: state.points + 5000,
-        time: state.time + 15,
-        lollipopCell: null,
-      };
-    }
-    case "hitIceCream": {
-      return {
-        ...state,
-        points: state.points + 10000,
-        time: state.time + 30,
-        iceCreamCell: null,
-      };
-    }
-    case "gameOver": {
-      return {
-        ...state,
-        points: 0,
-        hiScore: Math.max(state.hiScore, state.points),
-        gameOver: true,
-        round: 0,
-        lollipopCell: null,
-        iceCreamCell: null,
-      };
-    }
-    case "win": {
-      console.log(state.round, state.time, state.points);
-      let reachingGoalPoint = state.round * state.time * 100 + state.points;
-      console.log("state.time", state.time);
-      return {
-        ...state,
-        points: reachingGoalPoint,
-
-        time: ROUND_TIME,
-        round: state.round + 1,
-        lollipopCell: null,
-        iceCreamCell: null,
-      };
-    }
-    case "moveLogo": {
-      if (!state.time || state.mazesEnd) {
-        return state;
-      }
-      let nextCell = undefined;
-      let endOfStage;
-      switch (action.payload.arrowsKey) {
-        case 37: {
-          //LEFT
-          if (state.currentCell[0] == 0 && state.currentCell[1] == 0) {
-            break;
-          }
-          if (
-            !state.maze.cells[
-              state.currentCell[0] + state.currentCell[1] * state.maze.cols
-            ][3]
-          ) {
-            nextCell = [state.currentCell[0] - 1, state.currentCell[1]];
-            if (
-              state.currentCell[0] - 1 === ROWS - 1 &&
-              state.currentCell[1] === COLS - 1
-            ) {
-              endOfStage = true;
-            }
-          }
-          break;
-        }
-        case 38: {
-          //UP
-          if (
-            !state.maze.cells[
-              state.currentCell[0] + state.currentCell[1] * state.maze.cols
-            ][0]
-          ) {
-            nextCell = [state.currentCell[0], state.currentCell[1] - 1];
-            if (
-              state.currentCell[0] === ROWS - 1 &&
-              state.currentCell[1] - 1 === COLS - 1
-            ) {
-              endOfStage = true;
-            }
-          }
-          break;
-        }
-        case 39: {
-          //RIGHT
-          if (
-            !state.maze.cells[
-              state.currentCell[0] + state.currentCell[1] * state.maze.cols
-            ][1]
-          ) {
-            nextCell = [state.currentCell[0] + 1, state.currentCell[1]];
-            if (
-              state.currentCell[0] + 1 === ROWS - 1 &&
-              state.currentCell[1] === COLS - 1
-            ) {
-              endOfStage = true;
-            }
-          }
-          break;
-        }
-        case 40: {
-          //DOWN
-          if (
-            !state.maze.cells[
-              state.currentCell[0] + state.currentCell[1] * state.maze.cols
-            ][2]
-          ) {
-            nextCell = [state.currentCell[0], state.currentCell[1] + 1];
-            //check if logo reach the goal cell
-            if (
-              state.currentCell[0] === ROWS - 1 &&
-              state.currentCell[1] + 1 === COLS - 1
-            ) {
-              endOfStage = true;
-            }
-          }
-          break;
-        }
-      }
-      return {
-        ...state,
-        mazesEnd: endOfStage ? true : false,
-        currentCell: nextCell || state.currentCell,
-        points: nextCell ? state.points + 10 : state.points,
-      };
-    }
-    default:
-      throw new Error("Unknown action");
-  }
-}
+import * as myGameConstant from "./gameConstant/gameConstant";
+import reducer from "./reducers/reducers";
 
 function App() {
-  const [state, dispatch] = useReducer(reducer, {
-    points: 0,
-    round: 0,
-    hiScore: 0,
-    time: undefined,
-    maze: undefined,
-    currentCell: undefined,
-    mazesEnd: false,
-    gameOver: false,
-    lollipopCell: null,
-    iceCreamCell: null,
-  });
+  const [state, dispatch] = useReducer(reducer, myGameConstant.initialState);
   const callBackOnLollipop = () => {
     dispatch({ type: "hitLollipop" });
   };
   const callBackOnIceCream = () => {
     dispatch({ type: "hitIceCream" });
   };
+  //Start new game
   const handleOnEnterKeyPressed = useCallback(() => {
     if (!state.time) {
-      mazeAudio.play();
+      myGameConstant.mazeAudio.play();
       dispatch({
         type: "startGame",
         payload: {
-          maze: new MazeGenerator(ROWS, COLS).generate(),
+          maze: new MazeGenerator(
+            myGameConstant.ROWS,
+            myGameConstant.COLS
+          ).generate(),
           round: state.round + 1,
         },
       });
     }
   }, [state.time]);
-
+  //move logo
   const handleOnArrowKeyPressed = useCallback(
     (arrowsKey) => {
       if (state.time) {
@@ -212,13 +46,14 @@ function App() {
     },
     [state.time]
   );
+  //Event Listtener on enter key to start new game
   useEffect(() => {
     const onKeyDown = (e) => {
       if (e.keyCode === 13) {
         handleOnEnterKeyPressed();
       }
 
-      if (arrowsKeys.includes(e.keyCode)) {
+      if (myGameConstant.arrowsKeys.includes(e.keyCode)) {
         handleOnArrowKeyPressed(e.keyCode);
       }
     };
@@ -235,13 +70,16 @@ function App() {
     },
     state.time ? 1000 : null
   );
-
+  //game over
   useEffect(() => {
     if (
       state.time === 0 &&
-      !(state.currentCell[0] == ROWS - 1 && state.currentCell[1] == COLS - 1)
+      !(
+        state.currentCell[0] == myGameConstant.ROWS - 1 &&
+        state.currentCell[1] == myGameConstant.COLS - 1
+      )
     ) {
-      mazeAudio.load();
+      myGameConstant.mazeAudio.load();
       dispatch({ type: "gameOver" });
     }
   }, [state.time]);
@@ -249,8 +87,8 @@ function App() {
   //generate lollipop cell index after amount of time
   const generateMatrixNumber = () => {
     let tempIndexs = [
-      Math.floor(Math.random() * ROWS),
-      Math.floor(Math.random() * COLS),
+      Math.floor(Math.random() * myGameConstant.ROWS),
+      Math.floor(Math.random() * myGameConstant.COLS),
     ];
 
     if (
@@ -277,22 +115,28 @@ function App() {
     }
   }, [state.time]);
 
-  //escape the maze and win the stage
+  //success to escape the maze and win the stage!
   useEffect(() => {
     if (state.mazesEnd === true && state.time) {
-      mazeAudio.load();
-      levelEndAudio.play();
-      levelEndAudio.addEventListener("ended", () => {
+      myGameConstant.mazeAudio.load();
+      myGameConstant.levelEndAudio.play();
+      const endMaze = () => {
         dispatch({ type: "win" });
-        mazeAudio.play();
+        myGameConstant.mazeAudio.play();
         dispatch({
           type: "startGame",
           payload: {
-            maze: new MazeGenerator(ROWS, COLS).generate(),
+            maze: new MazeGenerator(
+              myGameConstant.ROWS,
+              myGameConstant.COLS
+            ).generate(),
             round: state.round + 1,
           },
         });
-      });
+      };
+      myGameConstant.levelEndAudio.addEventListener("ended", endMaze);
+      return () =>
+        myGameConstant.levelEndAudio.removeEventListener("ended", endMaze);
     }
   }, [state.mazesEnd]);
 
