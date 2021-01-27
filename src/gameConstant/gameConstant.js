@@ -8,7 +8,8 @@ export const arrowsKeys = [37, 38, 39, 40];
 export const mazeAudio = new Audio(MazeSoundSrc);
 mazeAudio.loop = true;
 export const levelEndAudio = new Audio(levelEndAudioSrc);
-
+export const lollipopTimer = 4;
+export const iceCreamTimer = 3;
 export const initialState = {
   points: 0,
   round: 0,

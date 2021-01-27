@@ -10,7 +10,10 @@ function reducer(state, action) {
         gameOver: false,
         maze: action.payload.maze,
         currentCell: action.payload.maze.startCell,
-        time: myGameConstant.ROUND_TIME,
+        time:
+          action.payload.time > myGameConstant.ROUND_TIME
+            ? action.payload.time
+            : myGameConstant.ROUND_TIME,
         lollipopAppeared: false,
         iceCreamAppeared: false,
       };

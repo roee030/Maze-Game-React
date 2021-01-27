@@ -15,11 +15,19 @@ function App() {
    */
   //Lollipop Image and Ice Cream Image
   useEffect(() => {
-    if (state.time === 5 && !state.lollipopAppeared && !state.lollipopCell) {
+    if (
+      state.time === myGameConstant.lollipopTimer &&
+      !state.lollipopAppeared &&
+      !state.lollipopCell
+    ) {
       let lolipopIndexs = generateMatrixNumber();
       state.lollipopCell = lolipopIndexs;
     }
-    if (state.time === 3 && !state.iceCreamAppeared && !state.iceCreamCell) {
+    if (
+      state.time === myGameConstant.iceCreamTimer &&
+      !state.iceCreamAppeared &&
+      !state.iceCreamCell
+    ) {
       let iceCreamIndexs = generateMatrixNumber();
       state.iceCreamCell = iceCreamIndexs;
     }
@@ -41,6 +49,7 @@ function App() {
               myGameConstant.COLS
             ).generate(),
             round: state.round + 1,
+            time: state.time,
           },
         });
       };
