@@ -10,98 +10,12 @@ import reducer from "./reducers/reducers";
 
 function App() {
   const [state, dispatch] = useReducer(reducer, myGameConstant.initialState);
-  const callBackOnLollipop = () => {
-    dispatch({ type: "hitLollipop" });
-  };
-  const callBackOnIceCream = () => {
-    dispatch({ type: "hitIceCream" });
-  };
-  //Start new game
-  const handleOnEnterKeyPressed = useCallback(() => {
-    if (!state.time) {
-      myGameConstant.mazeAudio.play();
-      dispatch({
-        type: "startGame",
-        payload: {
-          maze: new MazeGenerator(
-            myGameConstant.ROWS,
-            myGameConstant.COLS
-          ).generate(),
-          round: state.round + 1,
-        },
-      });
-    }
-  }, [state.time]);
-  //move logo
-  const handleOnArrowKeyPressed = useCallback(
-    (arrowsKey) => {
-      if (state.time) {
-        dispatch({
-          type: "moveLogo",
-          payload: {
-            arrowsKey,
-          },
-        });
-      }
-    },
-    [state.time]
-  );
-  //Event Listtener on enter key to start new game
-  useEffect(() => {
-    const onKeyDown = (e) => {
-      if (e.keyCode === 13) {
-        handleOnEnterKeyPressed();
-      }
-
-      if (myGameConstant.arrowsKeys.includes(e.keyCode)) {
-        handleOnArrowKeyPressed(e.keyCode);
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [handleOnEnterKeyPressed]);
-
-  useInterval(
-    () => {
-      dispatch({ type: "decrementTime" });
-    },
-    state.time ? 1000 : null
-  );
-  //game over
-  useEffect(() => {
-    if (
-      state.time === 0 &&
-      !(
-        state.currentCell[0] == myGameConstant.ROWS - 1 &&
-        state.currentCell[1] == myGameConstant.COLS - 1
-      )
-    ) {
-      myGameConstant.mazeAudio.load();
-      dispatch({ type: "gameOver" });
-    }
-  }, [state.time]);
-
-  //generate lollipop cell index after amount of time
-  const generateMatrixNumber = () => {
-    let tempIndexs = [
-      Math.floor(Math.random() * myGameConstant.ROWS),
-      Math.floor(Math.random() * myGameConstant.COLS),
-    ];
-
-    if (
-      state.currentCell[0] == tempIndexs[0] &&
-      state.currentCell[1] == tempIndexs[1]
-    ) {
-      generateMatrixNumber();
-    }
-    return tempIndexs;
-  };
+  /**
+   * USEEFFECTS
+   */
   //Lollipop Image
   useEffect(() => {
-    if (state.time === 4) {
+    if (state.time === 4 && !state.lollipopAppeared && !state.lollipopCell) {
       let lolipopIndexs = generateMatrixNumber();
       state.lollipopCell = lolipopIndexs;
     }
@@ -109,7 +23,7 @@ function App() {
 
   //Ice Cream Image
   useEffect(() => {
-    if (state.time === 3) {
+    if (state.time === 3 && !state.iceCreamAppeared && !state.iceCreamCell) {
       let iceCreamIndexs = generateMatrixNumber();
       state.iceCreamCell = iceCreamIndexs;
     }
@@ -139,6 +53,102 @@ function App() {
         myGameConstant.levelEndAudio.removeEventListener("ended", endMaze);
     }
   }, [state.mazesEnd]);
+
+  //Event Listtener on enter key to start new game
+  //Start new game
+  const handleOnEnterKeyPressed = useCallback(() => {
+    if (!state.time) {
+      myGameConstant.mazeAudio.play();
+      dispatch({
+        type: "startGame",
+        payload: {
+          maze: new MazeGenerator(
+            myGameConstant.ROWS,
+            myGameConstant.COLS
+          ).generate(),
+          round: state.round + 1,
+        },
+      });
+    }
+  }, [state.time]);
+  //KeyDown Event Listener
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.keyCode === 13) {
+        handleOnEnterKeyPressed();
+      }
+
+      if (myGameConstant.arrowsKeys.includes(e.keyCode)) {
+        handleOnArrowKeyPressed(e.keyCode);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [handleOnEnterKeyPressed]);
+
+  //game over
+  useEffect(() => {
+    if (
+      state.time === 0 &&
+      !(
+        state.currentCell[0] == myGameConstant.ROWS - 1 &&
+        state.currentCell[1] == myGameConstant.COLS - 1
+      )
+    ) {
+      myGameConstant.mazeAudio.load();
+      dispatch({ type: "gameOver" });
+    }
+  }, [state.time]);
+
+  const callBackOnLollipop = () => {
+    if (!state.lollipopAppeared) {
+      dispatch({ type: "hitLollipop" });
+    }
+  };
+  const callBackOnIceCream = () => {
+    if (!state.iceCreamAppeared) dispatch({ type: "hitIceCream" });
+  };
+
+  //move logo
+  const handleOnArrowKeyPressed = useCallback(
+    (arrowsKey) => {
+      if (state.time) {
+        dispatch({
+          type: "moveLogo",
+          payload: {
+            arrowsKey,
+          },
+        });
+      }
+    },
+    [state.time]
+  );
+
+  useInterval(
+    () => {
+      dispatch({ type: "decrementTime" });
+    },
+    state.time ? 1000 : null
+  );
+
+  //generate lollipop cell index after amount of time
+  const generateMatrixNumber = () => {
+    let tempIndexs = [
+      Math.floor(Math.random() * myGameConstant.ROWS),
+      Math.floor(Math.random() * myGameConstant.COLS),
+    ];
+
+    if (
+      state.currentCell[0] == tempIndexs[0] &&
+      state.currentCell[1] == tempIndexs[1]
+    ) {
+      generateMatrixNumber();
+    }
+    return tempIndexs;
+  };
 
   return (
     <div className={styles.root}>

@@ -11,6 +11,8 @@ function reducer(state, action) {
         maze: action.payload.maze,
         currentCell: action.payload.maze.startCell,
         time: myGameConstant.ROUND_TIME,
+        lollipopAppeared: false,
+        iceCreamAppeared: false,
       };
     }
     case "decrementTime": {
@@ -23,16 +25,18 @@ function reducer(state, action) {
       return {
         ...state,
         points: state.points + 5000,
-        time: state.time + 15,
+        time: state.time + 5,
         lollipopCell: null,
+        lollipopAppeared: true,
       };
     }
     case "hitIceCream": {
       return {
         ...state,
         points: state.points + 10000,
-        time: state.time + 30,
+        time: state.time + 4,
         iceCreamCell: null,
+        iceCreamAppeared: true,
       };
     }
     case "gameOver": {
@@ -44,6 +48,8 @@ function reducer(state, action) {
         round: 0,
         lollipopCell: null,
         iceCreamCell: null,
+        lollipopAppeared: false,
+        iceCreamAppeared: false,
       };
     }
     case "win": {

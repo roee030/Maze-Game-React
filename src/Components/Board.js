@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import styles from "./Board.module.css";
 import useInterval from "@use-it/interval";
 import PropTypes from "prop-types";
-import logoImage from "../logo.svg";
+import logoImage from "../images/logo.svg";
 import LollipopImage from "../images/lollipop.svg";
 import IceCreamImage from "../images/ice_cream.svg";
 function Board({

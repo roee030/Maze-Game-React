@@ -19,5 +19,7 @@ export const initialState = {
   mazesEnd: false,
   gameOver: false,
   lollipopCell: null,
+  lollipopAppeared: false,
   iceCreamCell: null,
+  iceCreamAppeared: false,
 };
