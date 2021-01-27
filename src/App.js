@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useReducer } from "react";
 import styles from "./App.module.css";
 import useInterval from "@use-it/interval";
-import Header from "./Header";
-import Notification from "./Notification";
+import Header from "./Components/Header";
+import Notification from "./Components/Notification";
 import MazeGenerator from "./maze/MazeGenerator";
-import Board from "./Board";
+import Board from "./Components/Board";
 import * as myGameConstant from "./gameConstant/gameConstant";
 import reducer from "./reducers/reducers";
 
