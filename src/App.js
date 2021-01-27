@@ -13,16 +13,12 @@ function App() {
   /**
    * USEEFFECTS
    */
-  //Lollipop Image
+  //Lollipop Image and Ice Cream Image
   useEffect(() => {
-    if (state.time === 4 && !state.lollipopAppeared && !state.lollipopCell) {
+    if (state.time === 5 && !state.lollipopAppeared && !state.lollipopCell) {
       let lolipopIndexs = generateMatrixNumber();
       state.lollipopCell = lolipopIndexs;
     }
-  }, [state.time]);
-
-  //Ice Cream Image
-  useEffect(() => {
     if (state.time === 3 && !state.iceCreamAppeared && !state.iceCreamCell) {
       let iceCreamIndexs = generateMatrixNumber();
       state.iceCreamCell = iceCreamIndexs;

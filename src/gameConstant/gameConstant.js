@@ -1,7 +1,7 @@
 import MazeSoundSrc from "../audio/maze.mp3";
 import levelEndAudioSrc from "../audio/level_end.mp3";
 
-export const ROUND_TIME = 5;
+export const ROUND_TIME = 6;
 export const ROWS = 3;
 export const COLS = 3;
 export const arrowsKeys = [37, 38, 39, 40];

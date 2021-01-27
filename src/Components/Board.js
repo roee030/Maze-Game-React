@@ -18,6 +18,10 @@ function Board({
   const container = useRef(null);
   const [ctx, setCtx] = useState(undefined);
   const [displayText, setDisplayText] = useState(true);
+  const [displayLollipopScore, setDisplayLollipopScore] = useState(false);
+  const [lollipopIndex, setLollipopIndex] = useState(false);
+  const [displayIceCreamScore, setDisplayIceCreamScore] = useState(false);
+  const [iceCreamIndex, setIceCreamIndex] = useState(false);
   //generate lollipop cell  index
 
   useEffect(() => {
@@ -28,6 +32,10 @@ function Board({
       canvas.current.style.width = offsetWidth + "px";
       canvas.current.style.height = offsetHeight + "px";
     };
+    setDisplayLollipopScore(false);
+    setLollipopIndex(false);
+    setDisplayIceCreamScore(false);
+    setIceCreamIndex(false);
 
     setCtx(canvas.current.getContext("2d"));
     setTimeout(fitToContainer, 0);
@@ -103,7 +111,9 @@ function Board({
           lollipopCell[0] == currentCell[0] &&
           lollipopCell[1] == currentCell[1]
         ) {
-          console.log("hit");
+          setLollipopIndex(lollipopCell);
+          setDisplayLollipopScore(true);
+
           callBackOnLollipop();
         }
       }
@@ -113,6 +123,8 @@ function Board({
           iceCreamCell[0] == currentCell[0] &&
           iceCreamCell[1] == currentCell[1]
         ) {
+          setIceCreamIndex(iceCreamCell);
+          setDisplayIceCreamScore(true);
           callBackOnIceCream();
         }
       }
@@ -153,7 +165,7 @@ function Board({
 
       //Goal Text
 
-      const textSize = Math.min(blockWidth, blockHeight);
+      var textSize = Math.min(blockWidth, blockHeight);
       ctx.fillStyle = "red";
       ctx.font = '20px "Joystix"';
       ctx.textBaseline = "top";
@@ -165,6 +177,28 @@ function Board({
           textSize
         );
       }
+      if (displayLollipopScore) {
+        ctx.fillText(
+          "+5000",
+          lollipopIndex[0] * blockWidth + xOffset + (blockWidth - textSize) / 2,
+          lollipopIndex[1] * blockHeight + (blockHeight - textSize) / 2,
+          textSize
+        );
+      }
+      if (displayIceCreamScore) {
+        ctx.fillText(
+          "+10000",
+          iceCreamIndex[0] * blockWidth + xOffset + (blockWidth - textSize) / 2,
+          iceCreamIndex[1] * blockHeight + (blockHeight - textSize) / 2,
+          textSize
+        );
+      }
+      if (displayIceCreamScore && !iceCreamCell) {
+        setTimeout(() => setDisplayIceCreamScore(false), 3000);
+      }
+      if (displayLollipopScore && !lollipopCell) {
+        setTimeout(() => setDisplayLollipopScore(false), 3000);
+      }
     };
 
     draw();
@@ -172,6 +206,7 @@ function Board({
   useInterval(() => {
     setDisplayText((prev) => !prev);
   }, 1000);
+
   return (
     <div className={styles.root} ref={container}>
       <canvas ref={canvas} />
