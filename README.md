@@ -2,7 +2,7 @@
 <br />
 <p align="center">
     <a href="https://github.com/roee030/Maze-Game-React/">	
-     <img src="public/screenshot.png" alt="Logo" width="80" height="80">
+     <img src="public/screenshot.png" alt="Logo" width="150" height="150">
   </a>
   
 
